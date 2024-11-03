@@ -24,11 +24,29 @@ namespace F1H43C_EEJYN9
 
         public void Start()
         {
-            if (UserLogin())
+
+            do
             {
-               // Console.WriteLine("GameManager elindítva...");
-                Program.MainMenu();  // Visszatérünk a főmenübe
-            }
+                ClearConsole();
+
+                if (UserLogin())
+                {
+                    // Console.WriteLine("GameManager elindítva...");
+                    Program.MainMenu();
+                    // Visszatérünk a főmenübe
+                }
+                else
+                {
+                    Console.WriteLine("Login failed! Press 'q' to quit or press any other button to try again.");
+                }
+
+                if (Console.ReadKey().Key == ConsoleKey.Q)
+                {
+                    Environment.Exit(0);
+                }
+
+            } while (true);
+            
         }
 
         public void CloseAllFiles()
