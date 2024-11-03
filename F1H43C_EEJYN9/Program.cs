@@ -39,7 +39,29 @@ public class Program
     private static void StartGame()
     {
         Console.WriteLine("Játék indítása...");
-        // Ide jön majd a játék indításának logikája
+        Thread.Sleep(1000);
+        GameManager.Instance.ClearConsole();
+        GameLogic game = new GameLogic();
+
+        while (true)
+        {
+            game.RenderGrid();
+            ConsoleKey key = Console.ReadKey(true).Key;
+
+            switch (key)
+            {
+                case ConsoleKey.Spacebar:
+                    game.LockCell();
+                    break;
+                case ConsoleKey.UpArrow:
+                case ConsoleKey.DownArrow:
+                case ConsoleKey.LeftArrow:
+                case ConsoleKey.RightArrow:
+                    game.MoveSelection(key);
+                    break;
+            }
+        }
+
     }
 
     private static void ModifyPreferences()
