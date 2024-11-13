@@ -51,13 +51,22 @@ public class Program
             switch (key)
             {
                 case ConsoleKey.Spacebar:
-                    game.LockCell();
+                    game.PlaceShip();
                     break;
                 case ConsoleKey.UpArrow:
                 case ConsoleKey.DownArrow:
                 case ConsoleKey.LeftArrow:
                 case ConsoleKey.RightArrow:
                     game.MoveSelection(key);
+                    break;
+                case ConsoleKey.D1:
+                case ConsoleKey.D2:
+                case ConsoleKey.D3:
+                case ConsoleKey.D4:
+                    game.ChangeShipSize(key);
+                    break;
+                case ConsoleKey.R:
+                    game.Rotate90Degrees();
                     break;
             }
         }
