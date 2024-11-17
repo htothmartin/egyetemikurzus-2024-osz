@@ -1,22 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace F1H43C_EEJYN9
+﻿namespace F1H43C_EEJYN9
 {
     public class GameLogic
     {
         private const int GridSize = 8;
-        private readonly char[,] grid = new char[GridSize, GridSize];
-        private (int Row, int Col) selectedCell = (0, 0);
-        private bool[,] lockedCells = new bool[GridSize, GridSize];
+        private readonly Cell[,] grid = new Cell[GridSize, GridSize];
+        private Coordinate selectedCell = new Coordinate(0,0);
+        //private bool[,] lockedCells = new bool[GridSize, GridSize];
+        
+        private Coordinate Direction = new Coordinate(1, 0);
+        private List<int> ShipSizes;
+        private int SelectedShipLength;
+        private List<Ship> Ships = new List<Ship>();
+
+
 
         public GameLogic()
         {
+            ShipSizes = new List<int> { 1, 2, 3, 4 };
+            SelectedShipLength = ShipSizes[0];
             InitializeGrid();
         }
+
+
 
         private void InitializeGrid()
         {
@@ -24,21 +29,17 @@ namespace F1H43C_EEJYN9
             {
                 for (int j = 0; j < GridSize; j++)
                 {
-                    grid[i, j] = '~';
+                    grid[i, j] = new Cell(i, j, '~');
                 }
             }
-
-            // Néhány 'x' karakter elhelyezése hajók szimbolizálására
-            grid[2, 3] = 'x';
-            grid[2, 4] = 'x';
-            grid[5, 1] = 'x';
-            grid[5, 2] = 'x';
         }
 
         public void RenderGrid()
         {
             Console.Clear();
             Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            List<Coordinate> possibleCells = GetPossibleCells();
 
             Console.WriteLine("╔" + new string('═', GridSize * 2) + "╗");
 
@@ -47,65 +48,167 @@ namespace F1H43C_EEJYN9
                 Console.Write("║");
                 for (int j = 0; j < GridSize; j++)
                 {
-                    if (lockedCells[i, j])
+                    if (grid[i, j].HasShip)
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.ForegroundColor = ConsoleColor.Blue;
                     }
-                    else if (selectedCell.Row == i && selectedCell.Col == j)
+                    else if (possibleCells.Contains(new Coordinate(i, j)))
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.ForegroundColor = CheckShipPositionIsValid() ? ConsoleColor.Green : ConsoleColor.Red;
                     }
                     else
                     {
                         Console.ResetColor();
                     }
 
-                    Console.Write(grid[i, j] + " ");
+                    Console.Write(grid[i, j].Symbol + " ");
                     Console.ResetColor();
                 }
                 Console.WriteLine("║");
             }
 
             Console.WriteLine("╚" + new string('═', GridSize * 2) + "╝");
+
+            if (ShipSizes.Count == 0)
+            {
+                Console.WriteLine("Minden hajó el lett helyezve.");
+                
+            } else
+            {
+                Console.WriteLine($"Jelenlegi hajó hossza: {SelectedShipLength}");
+                Console.WriteLine("Nyomd meg az 1-4 gombokat a hajó hosszának kiválasztásához.");            
+            }
+        }
+
+        public void Rotate90Degrees()
+        {
+            int temp = Direction.X;
+            Direction.X = Direction.Y;
+            Direction.Y = -temp;
         }
 
         public void MoveSelection(ConsoleKey key)
         {
-            (int Row, int Col) newSelection = selectedCell;
+            Coordinate newSelection = selectedCell;
 
             switch (key)
             {
                 case ConsoleKey.UpArrow:
-                    if (selectedCell.Row > 0)
-                        newSelection.Row--;
+                    if (selectedCell.X > 0)
+                        newSelection.X--;
                     break;
                 case ConsoleKey.DownArrow:
-                    if (selectedCell.Row < GridSize - 1)
-                        newSelection.Row++;
+                    if (selectedCell.X < GridSize - 1)
+                        newSelection.X++;
                     break;
                 case ConsoleKey.LeftArrow:
-                    if (selectedCell.Col > 0)
-                        newSelection.Col--;
+                    if (selectedCell.Y > 0)
+                        newSelection.Y--;
                     break;
                 case ConsoleKey.RightArrow:
-                    if (selectedCell.Col < GridSize - 1)
-                        newSelection.Col++;
+                    if (selectedCell.Y < GridSize - 1)
+                        newSelection.Y++;
                     break;
             }
 
             selectedCell = newSelection;
         }
 
-        public void LockCell()
+        public bool CheckShipPositionIsValid()
         {
-            if (lockedCells[selectedCell.Row, selectedCell.Col])
+            Coordinate possibleCell = selectedCell;
+            for (int i = 0; i < SelectedShipLength - 1; i++)
             {
-                Console.WriteLine("Hiba: Ez a mező már véglegesen kijelölve lett!");
+                possibleCell = new Coordinate(possibleCell.X + Direction.X, possibleCell.Y + Direction.Y);
+
+                if (possibleCell.X >= GridSize || possibleCell.X < 0)
+                {
+                    return false;
+                }
+                else if (possibleCell.Y >= GridSize || possibleCell.Y < 0)
+                {
+                    return false;
+                }
+                if (grid[possibleCell.X, possibleCell.Y].HasShip)
+                {
+                    return false;
+                }
+            }
+          
+            return true;
+        }
+
+        public List<Coordinate> GetPossibleCells()
+        {
+            var possibleCells = new List<Coordinate>();
+
+            possibleCells.Add(selectedCell);
+
+            for (int i = 0; i < SelectedShipLength - 1; i++)
+            {
+                possibleCells.Add(new Coordinate(possibleCells[i].X + Direction.X, possibleCells[i].Y + Direction.Y));
+            }
+
+            return possibleCells;
+
+
+        }
+
+        public void ChangeShipSize(ConsoleKey key)
+        {
+            switch (key)
+            {
+                case ConsoleKey.D1:
+                    if (ShipSizes.Contains(1))
+                    {
+                        SelectedShipLength = 1;
+                    }
+                    break;
+                case ConsoleKey.D2:
+                    if (ShipSizes.Contains(2))
+                    {
+                        SelectedShipLength = 2;
+                    }
+                    break;
+                case ConsoleKey.D3:
+                    if (ShipSizes.Contains(3))
+                    {
+                        SelectedShipLength = 3;
+                    }
+                    break;
+                case ConsoleKey.D4:
+                    if (ShipSizes.Contains(4))
+                    {
+                        SelectedShipLength = 4;
+                    }
+                    break;
+            }
+        }
+
+        public void PlaceShip()
+        {
+            if (!CheckShipPositionIsValid()) return;
+
+            List<Coordinate> possibleCells = GetPossibleCells();
+
+            Ships.Add(new Ship(selectedCell, Direction, SelectedShipLength));
+
+            ShipSizes.Remove(SelectedShipLength);
+            if (ShipSizes.Count > 0)
+            {
+                SelectedShipLength = ShipSizes[0];
             }
             else
             {
-                lockedCells[selectedCell.Row, selectedCell.Col] = true;
-                grid[selectedCell.Row, selectedCell.Col] = '■';
+                Console.WriteLine("Minden hajó el lett helyezve.");
+            }
+            
+            foreach (Coordinate cell in possibleCells)
+            {
+  
+                grid[cell.X, cell.Y].HasShip = true;
+                grid[cell.X, cell.Y].Symbol = '■';
+                
             }
         }
     }
