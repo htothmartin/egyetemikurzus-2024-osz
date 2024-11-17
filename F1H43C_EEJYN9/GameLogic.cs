@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace F1H43C_EEJYN9
+﻿namespace F1H43C_EEJYN9
 {
     public class GameLogic
     {
@@ -60,14 +54,7 @@ namespace F1H43C_EEJYN9
                     }
                     else if (possibleCells.Contains(new Coordinate(i, j)))
                     {
-                        if (checkShipPositionIsValid())
-                        {
-                            Console.ForegroundColor = ConsoleColor.Green;
-                        } else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                        }
-                        
+                        Console.ForegroundColor = CheckShipPositionIsValid() ? ConsoleColor.Green : ConsoleColor.Red;
                     }
                     else
                     {
@@ -127,7 +114,7 @@ namespace F1H43C_EEJYN9
             selectedCell = newSelection;
         }
 
-        public bool checkShipPositionIsValid()
+        public bool CheckShipPositionIsValid()
         {
             Coordinate possibleCell = selectedCell;
             for (int i = 0; i < SelectedShipLength - 1; i++)
@@ -200,7 +187,7 @@ namespace F1H43C_EEJYN9
 
         public void PlaceShip()
         {
-            if (!checkShipPositionIsValid()) return;
+            if (!CheckShipPositionIsValid()) return;
 
             List<Coordinate> possibleCells = GetPossibleCells();
 

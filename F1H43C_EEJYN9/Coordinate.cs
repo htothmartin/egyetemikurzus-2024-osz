@@ -1,3 +1,6 @@
 ﻿using System;
 
-public record struct Coordinate(int X, int Y);
+namespace F1H43C_EEJYN9
+{
+    public record struct Coordinate(int X, int Y);
+}
