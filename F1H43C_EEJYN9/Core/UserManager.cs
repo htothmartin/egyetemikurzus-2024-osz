@@ -7,6 +7,7 @@ public class UserManager
 {
     public User CurrentUser { get; set; }
     private static UserManager? _instance;
+    private UserRepository _userRepository;
 
     public static UserManager Instance
     {
@@ -14,11 +15,55 @@ public class UserManager
         {
             if (_instance == null)
             {
-                _instance = new UserManager();
+                _instance = new UserManager(new UserRepository());
             }
             return _instance;
         }
-    } 
+    }
+
+    private UserManager(UserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
+
+    public void ShowStatistics()
+    {
+        bool orderDescending = false;
+        while (true)
+        {
+            Console.Clear();
+            List<GameData> orderedData;
+            if (orderDescending)
+            {
+                orderedData = CurrentUser.GamesPlayed.OrderByDescending(g => g.Date).ToList();
+            }
+            else
+            {
+                orderedData = CurrentUser.GamesPlayed.OrderBy(g => g.Date).ToList();
+            }
+            foreach (GameData row in orderedData)
+            {
+                Console.WriteLine($"A játék dátuma: {row.Date}, Győztes: {row.Winner}");
+            }
+            int WinCount = orderedData.Count((gameData) => gameData.Winner == CurrentUser.Name);
+            Console.WriteLine($"Győzelmek száma: {WinCount}");
+            Console.WriteLine();
+            Console.WriteLine($"Rendezés: {(orderDescending?"Csökkenő":"Növekvő")}");
+            Console.WriteLine("Nyomd meg az 'o' gombot a rendezés megváltoztatásához.");
+            Console.WriteLine("Nyomd meg 'q' gombot a kilépéshez.");
+            
+            var Key = Console.ReadKey(true).Key;
+            if (Key == ConsoleKey.O)
+            {
+                orderDescending = !orderDescending;
+            }
+            if (Key == ConsoleKey.Q)
+            {
+                return;
+            }
+            
+        }
+    }
     
     public bool UserLogin()
     {
@@ -31,10 +76,18 @@ public class UserManager
             return false;
         }
 
-        var user = UserRepository.Instance.GetOrCreateUser(username);
+        var user = _userRepository.GetOrCreateUser(username);
         CurrentUser = user;
         Console.Clear();
         return true;
+    }
+    
+    public void CloseAllFiles()
+    {
+        _userRepository.SaveUsers();
+        Console.WriteLine("Minden fájl bezárva.");
+        Console.Clear();
+        // Itt kerülnek bezárásra a megnyitott fájlok, ha vannak
     }
     
 }

@@ -4,14 +4,14 @@
     {
         public string Name { get; private set; }
         public DateTime LastLogin { get; set; }
-        public Dictionary<int, int> GamesPlayed { get; set; }
+        public List<GameData> GamesPlayed { get; set; }
         public Dictionary<string, string> Preferences { get; set; }
 
         public User(string name)
         {
             Name = name;
             LastLogin = DateTime.Now;
-            GamesPlayed = new Dictionary<int, int>();
+            GamesPlayed = new List<GameData>();
             Preferences = new Dictionary<string, string>();
         }
     }
