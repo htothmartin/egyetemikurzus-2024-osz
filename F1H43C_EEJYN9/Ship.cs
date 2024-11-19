@@ -2,15 +2,20 @@
 {
     public class Ship
     {
-        public Coordinate Head { get; private set; }
-        public Coordinate Direction { get; private set; }
-        private int Length { get; }
+        public Coordinate? Head { get;  set; }
+        public Coordinate Direction { get;  set; }
+        public int Length { get; }
+        
+        public bool IsSunk { get; set; }
+        
+        public string ShipName { get;  set; }
 
-        public Ship(Coordinate head, Coordinate direction, int length)
+        public Ship(string name ,int length)
         {
-            Head = head;
-            Direction = direction;
             Length = length;
+            Head = null;
+            ShipName = name;
+            IsSunk = false;
         }
     }
 }

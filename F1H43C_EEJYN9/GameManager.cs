@@ -9,6 +9,8 @@ namespace F1H43C_EEJYN9
     public class GameManager
     {
         private static GameManager? _instance;
+        private Player HumanPlayer;
+        private Player AIPlayer;
 
         public static GameManager Instance
         {
@@ -22,32 +24,34 @@ namespace F1H43C_EEJYN9
             }
         }
 
-        public void Start()
+        public void Start(string playerName)
         {
+            HumanPlayer = new Player(playerName);
+            AIPlayer = new Player("AI");
+            HumanPlayer.PlaceShips();
+            AIPlayer.PlaceAIShips();
+            
+            Console.WriteLine("Játék indítása...");
+            bool IsPlayer1Turn = true;
+            Thread.Sleep(1000);
 
-            do
+            while (IsGameEnded())
             {
-                ClearConsole();
-
-                if (UserLogin())
+                if (IsPlayer1Turn)
                 {
-                    // Console.WriteLine("GameManager elindítva...");
-                    Program.MainMenu();
-                    // Visszatérünk a főmenübe
+                    Turn(HumanPlayer, AIPlayer);
                 }
                 else
                 {
-                    Console.WriteLine("Login failed! Press 'q' to quit or press any other button to try again.");
+                    AITurn(AIPlayer, HumanPlayer);
                 }
-
-                if (Console.ReadKey().Key == ConsoleKey.Q)
-                {
-                    Environment.Exit(0);
-                }
-
-            } while (true);
-            
+                IsPlayer1Turn = !IsPlayer1Turn;
+            }
+            Console.Clear();
+            Console.WriteLine($"Nyertes: {GetWinner()}");
         }
+
+      
 
         public void CloseAllFiles()
         {
@@ -56,22 +60,51 @@ namespace F1H43C_EEJYN9
             // Itt kerülnek bezárásra a megnyitott fájlok, ha vannak
         }
 
-        private bool UserLogin()
+        private string GetWinner()
         {
-            Console.Write("Enter your username: ");
-            string username = Console.ReadLine().Trim();
-
-            if (!UserValidator.IsValidUsername(username))
+            if (HumanPlayer.IsALlShipIsSunk() && AIPlayer.IsALlShipIsSunk())
             {
-                Console.WriteLine("Invalid username format. Must be at least 5 characters and contain only letters and numbers.");
-                return false;
+                return "Tie";
             }
-
-            var user = UserRepository.Instance.GetOrCreateUser(username);
-            ClearConsole();
-            Console.WriteLine($"Welcome, {user.Name}!\n");
-            return true;
+            
+            return HumanPlayer.IsALlShipIsSunk() ? AIPlayer.Name : HumanPlayer.Name;
         }
+
+        private void Turn(Player current, Player enemy)
+        {
+            bool isFired = false;
+            while (!isFired)
+            {
+                
+                current.Board.RenderGrid(null, false, false);
+                enemy.Board.RenderGridWithEnemyPos(current.Board.selectedCell);
+ 
+                isFired = current.MoveCrosshair();
+                if (isFired)
+                {
+                    isFired = enemy.Fire(current.Board.selectedCell);
+                }
+            }
+           
+        }
+
+        private void AITurn(Player current, Player enemy)
+        {
+            bool isFired = false;
+            
+            while (!isFired)
+            {
+                current.Board.GenerateRandomAIPos();
+                isFired = enemy.Fire(current.Board.selectedCell);
+            }
+        }
+
+        private bool IsGameEnded()
+        {
+            return !HumanPlayer.IsALlShipIsSunk() && !AIPlayer.IsALlShipIsSunk();
+        }
+
+        
 
         public void ClearConsole()
         {

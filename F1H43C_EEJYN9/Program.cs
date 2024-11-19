@@ -5,9 +5,11 @@ using F1H43C_EEJYN9;
 
 public class Program
 {
+    private string _username;
+    
     public static void MainMenu()
     {
-        Console.WriteLine("Sikeres bejelentkezés! Válassz egy lehetőséget a menüből:");
+        Console.WriteLine("Válassz egy lehetőséget a menüből:");
         Console.WriteLine("1. Játék indítása");
         Console.WriteLine("2. Preferenciák módosítása");
         Console.WriteLine("3. Kijelentkezés");
@@ -20,12 +22,15 @@ public class Program
             if (!string.IsNullOrWhiteSpace(input) && commands.ContainsKey(input))
             {
                 commands[input].Invoke();
+                break;
             }
             else
             {
                 Console.WriteLine("?? Érvénytelen parancs, próbáld újra.");
             }
         }
+
+        MainMenu();
     }
 
     private static readonly Dictionary<string, Action> commands = new()
@@ -38,39 +43,7 @@ public class Program
 
     private static void StartGame()
     {
-        Console.WriteLine("Játék indítása...");
-        Thread.Sleep(1000);
-        GameManager.Instance.ClearConsole();
-        GameLogic game = new GameLogic();
-
-        while (true)
-        {
-            game.RenderGrid();
-            ConsoleKey key = Console.ReadKey(true).Key;
-
-            switch (key)
-            {
-                case ConsoleKey.Spacebar:
-                    game.PlaceShip();
-                    break;
-                case ConsoleKey.UpArrow:
-                case ConsoleKey.DownArrow:
-                case ConsoleKey.LeftArrow:
-                case ConsoleKey.RightArrow:
-                    game.MoveSelection(key);
-                    break;
-                case ConsoleKey.D1:
-                case ConsoleKey.D2:
-                case ConsoleKey.D3:
-                case ConsoleKey.D4:
-                    game.ChangeShipSize(key);
-                    break;
-                case ConsoleKey.R:
-                    game.Rotate90Degrees();
-                    break;
-            }
-        }
-
+        GameManager.Instance.Start(UserManager.Instance.CurrentUser.Name);
     }
 
     private static void ModifyPreferences()
@@ -85,7 +58,6 @@ public class Program
         Thread.Sleep(1000);
         // Bezárunk minden megnyitott fájlt és újraindítjuk a GameManager-t
         GameManager.Instance.CloseAllFiles();
-        GameManager.Instance.Start();
     }
 
     private static void ExitApplication()
@@ -96,8 +68,34 @@ public class Program
         Environment.Exit(0);
     }
 
+    private static void Login()
+    {
+        do
+        {
+            Console.Clear();
+
+            if (UserManager.Instance.UserLogin())
+            {
+                // Console.WriteLine("GameManager elindítva...");
+                Console.WriteLine("Sikeres bejelentkezés! ");
+                MainMenu();
+                // Visszatérünk a főmenübe
+            }
+            else
+            {
+                Console.WriteLine("Login failed! Press 'q' to quit or press any other button to try again.");
+            }
+
+            if (Console.ReadKey().Key == ConsoleKey.Q)
+            {
+                Environment.Exit(0);
+            }
+
+        } while (true);
+    }
+
     public static void Main(string[] args)
     {
-        GameManager.Instance.Start();
+        Login();
     }
 }
