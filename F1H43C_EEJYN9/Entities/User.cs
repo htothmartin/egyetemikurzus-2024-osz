@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace F1H43C_EEJYN9
+﻿namespace F1H43C_EEJYN9.Entities
 {
     public class User
     {

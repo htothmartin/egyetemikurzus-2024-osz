@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-using F1H43C_EEJYN9;
+using F1H43C_EEJYN9.Entities;
+namespace F1H43C_EEJYN9.Repository;
 
 public class UserRepository
 {

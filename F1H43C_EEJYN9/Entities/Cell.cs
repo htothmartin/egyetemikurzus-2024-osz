@@ -1,17 +1,15 @@
 ﻿
-namespace F1H43C_EEJYN9
+namespace F1H43C_EEJYN9.Entities
 {
     public class Cell
     {
-        public Coordinate coordinate { get; }
         public bool HasShip { get; set; }
         public bool IsHit { get; set; }
         public char Symbol { get; set; }
 
 
-        public Cell(int row, int col, char symbol)
+        public Cell(char symbol)
         {
-            coordinate = new Coordinate(row, col);
             IsHit = false;
             HasShip = false;
             Symbol = symbol;
