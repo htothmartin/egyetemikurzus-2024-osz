@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-
-using F1H43C_EEJYN9;
+﻿using F1H43C_EEJYN9;
+using F1H43C_EEJYN9.Core;
 
 public class Program
 {
@@ -83,7 +81,7 @@ public class Program
             }
             else
             {
-                Console.WriteLine("Login failed! Press 'q' to quit or press any other button to try again.");
+                Console.WriteLine("Bejelentkezés nem sikerült! Nyomj 'q'-t a kilépéshez, vagy nyomj meg bármilyen más gombot a próbálkozáshoz.");
             }
 
             if (Console.ReadKey().Key == ConsoleKey.Q)

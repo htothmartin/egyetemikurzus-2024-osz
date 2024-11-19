@@ -1,18 +1,18 @@
-namespace F1H43C_EEJYN9;
+namespace F1H43C_EEJYN9.Entities;
 
 public class Board
 {
-    public const int GridSize = 8;
-    public readonly Cell[,] Grid;
-    private Coordinate direction;
-    public Coordinate selectedCell { get; set; }
+    private const int GridSize = 8;
+    public readonly Cell[,] Grid ;
+    private Coordinate _direction;
+    public Coordinate SelectedCell { get; private set; }
     
     public Board()
     {
         Grid = new Cell[GridSize, GridSize];
         InitializeGrid();
-        direction = new Coordinate(1, 0);
-        selectedCell = new Coordinate(0, 0);
+        _direction = new Coordinate(1, 0);
+        SelectedCell = new Coordinate(0, 0);
     }
     
     private void InitializeGrid()
@@ -21,7 +21,7 @@ public class Board
         {
             for (int j = 0; j < GridSize; j++)
             {
-                Grid[i, j] = new Cell(i, j, '~');
+                Grid[i, j] = new Cell('~');
             }
         }
     }
@@ -48,7 +48,7 @@ public class Board
                 else if (shipPreview && possibleCells.Contains(new Coordinate(i, j)))
                 {
                     Console.ForegroundColor = CheckShipPositionIsValid(ship) ? ConsoleColor.Green : ConsoleColor.Red;
-                } else if(selectedCell != null && selectedCell.Equals(new Coordinate(i, j)) && cursor)
+                } else if(SelectedCell.Equals(new Coordinate(i, j)) && cursor)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                 } else if (Grid[i, j].HasShip && Grid[i, j].IsHit)
@@ -125,7 +125,7 @@ public class Board
     
     public bool CheckShipPositionIsValid(Ship ship)
     {
-        Coordinate possibleCell = selectedCell;
+        Coordinate possibleCell = SelectedCell;
         for (int i = 0; i < ship.Length; i++)
         {
             if (possibleCell.X >= GridSize || possibleCell.X < 0)
@@ -142,7 +142,7 @@ public class Board
                 return false;
             }
 
-            possibleCell = new Coordinate(possibleCell.X + direction.X, possibleCell.Y + direction.Y);
+            possibleCell = new Coordinate(possibleCell.X + _direction.X, possibleCell.Y + _direction.Y);
         }
 
         return true;
@@ -157,8 +157,8 @@ public class Board
     {
         if (!CheckShipPositionIsValid(ship)) return false;
         
-        ship.Head = selectedCell;
-        ship.Direction = direction;
+        ship.Head = SelectedCell;
+        ship.Direction = _direction;
         
         List<Coordinate> possibleCells = GetPossibleCells(ship);
         
@@ -173,81 +173,62 @@ public class Board
     
     public void Rotate90Degrees()
     {
-        int temp = direction.X;
-        direction.X = direction.Y;
-        direction.Y = -temp;
+        int temp = _direction.X;
+        _direction.X = _direction.Y;
+        _direction.Y = -temp;
     }
     
     private List<Coordinate> GetPossibleCells(Ship ship)
     {
-        var possibleCells = new List<Coordinate>();
-
-        possibleCells.Add(selectedCell);
+        var possibleCells = new List<Coordinate> { SelectedCell };
 
         for (int i = 0; i < ship.Length - 1; i++)
         {
-            possibleCells.Add(new Coordinate(possibleCells[i].X + direction.X, possibleCells[i].Y + direction.Y));
+            possibleCells.Add(new Coordinate(possibleCells[i].X + _direction.X, possibleCells[i].Y + _direction.Y));
         }
 
         return possibleCells;
     }
     
-    public bool Fire()
+    public bool Hit(Coordinate target)
     {
-        if (Grid[selectedCell.X, selectedCell.Y].IsHit)
+        if (!Grid[target.X, target.Y].IsHit)
         {
-            return false;
-        }
-        else
-        {
-            Grid[selectedCell.X, selectedCell.Y].IsHit = true;
+            Grid[target.X, target.Y].IsHit = true;
             return true;
         }
+
+        return false;
     }
 
-    public void GenerateRandomAIPos()
+    public void GenerateRandomAiPos()
     {
         Random random = new Random();
-        selectedCell = new Coordinate(random.Next(0, GridSize), random.Next(0, GridSize));
-    }
-
-    public void CheckShipIsSunk(Ship ship)
-    {
-        Coordinate temp = ship.Head ?? new Coordinate(0, 0);
-        for (int i = 0; i < ship.Length ; i++)
-        {
-            if (!Grid[temp.X + i * ship.Direction.X, temp.Y + i * ship.Direction.Y].IsHit)
-            {
-                return;
-            }
-         
-        }
-        ship.IsSunk = true;
-        
+        SelectedCell = new Coordinate(random.Next(0, GridSize), random.Next(0, GridSize));
     }
     
     public void MoveSelection(ConsoleKey key)
     {
-        Coordinate newSelection = selectedCell;
+        Coordinate newSelection = SelectedCell;
         switch (key)
         {
             case ConsoleKey.UpArrow:
-                if (selectedCell.X > 0)
+                if (SelectedCell.X > 0)
                     newSelection.X--;
                 break;
             case ConsoleKey.DownArrow:
-                if (selectedCell.X < GridSize - 1)
+                if (SelectedCell.X < GridSize - 1)
                     newSelection.X++;
                 break;
             case ConsoleKey.LeftArrow:
-                if (selectedCell.Y > 0)
+                if (SelectedCell.Y > 0)
                     newSelection.Y--;
                 break;
             case ConsoleKey.RightArrow:
-                if (selectedCell.Y < GridSize - 1)
+                if (SelectedCell.Y < GridSize - 1)
                     newSelection.Y++;
                 break;
         }
-        selectedCell = newSelection;
+        SelectedCell = newSelection;
     }
 }
