@@ -24,11 +24,10 @@ public class AiPlayer : Player
         Console.WriteLine("AI Hajók elhelyezése...");
         Thread.Sleep(1000);
         Console.Clear();
-
         Ship selectedShip = _ships[0];
         while (!IsAllShipPlaced())
         {
-            Board.GenerateRandomAiPos();
+            Board.GenerateRandomAiPos(true);
             if (Board.PlaceShip(selectedShip))
             {
                 selectedShip = SelectNextShip();

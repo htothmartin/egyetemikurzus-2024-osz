@@ -15,6 +15,11 @@ public class UserRepository
         LoadUsers();
     }
 
+    public List<User> Users
+    {
+        get { return _users; }
+    }
+
     public User GetOrCreateUser(string username)
     {
         var user = _users.Find(u => u.Name.Equals(username, StringComparison.OrdinalIgnoreCase));

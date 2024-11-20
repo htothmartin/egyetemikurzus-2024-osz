@@ -26,7 +26,7 @@ public class UserManager
         _userRepository = userRepository;
     }
 
-    public void ShowStatistics()
+    public void UserStatistics()
     {
         bool orderDescending = false;
         while (true)
@@ -63,6 +63,38 @@ public class UserManager
             }
             
         }
+    }
+
+    public void GlobalStatistics()
+    {
+        while (true)
+        {
+            Console.Clear();
+            List<User> users = _userRepository.Users;
+            var top10player = users.Select((user) =>
+                new
+                {
+                    Username = user.Name,
+                    WinCount = user.GamesPlayed.Count(gameData => gameData.Winner == user.Name),
+                }).OrderByDescending(p => p.WinCount).Take(10).ToList();
+            Console.WriteLine("Top 10 játékos");
+            for (int i = 0; i < top10player.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {top10player[i].Username} Győzelmek: {top10player[i].WinCount}");
+            }
+            
+            var aiWindCount = users.SelectMany(user => user.GamesPlayed).Where(p => p.Winner == "AI").Count();
+            Console.WriteLine($"Az AI összesen {aiWindCount} győzelmet szerzett.");
+
+            Console.WriteLine("Nyomd meg 'q' gombot a kilépéshez.");
+
+            var Key = Console.ReadKey(true).Key;
+            if (Key == ConsoleKey.Q)
+            {
+                return;
+            }
+        }
+
     }
     
     public bool UserLogin()

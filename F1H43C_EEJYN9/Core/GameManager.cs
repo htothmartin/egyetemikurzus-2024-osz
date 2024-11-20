@@ -25,6 +25,7 @@ namespace F1H43C_EEJYN9.Core
         {
             HumanPlayer = new HumanPlayer(playerName);
             AIPlayer = new AiPlayer("AI");
+            Console.Clear();
             HumanPlayer.PlaceShips();
             AIPlayer.PlaceShips();
             

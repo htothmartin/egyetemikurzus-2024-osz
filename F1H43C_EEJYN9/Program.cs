@@ -40,11 +40,34 @@ public class Program
         {"4", Logout},
         {"5", ExitApplication}
     };
+    
+    private static readonly Dictionary<string, Action> statisticCommands = new()
+    {
+        {"1", UserManager.Instance.UserStatistics},
+        {"2", UserManager.Instance.GlobalStatistics},
+    };
 
     private static void Statistics()
     {
         Console.Clear();
-        UserManager.Instance.ShowStatistics();
+        while (true)
+        {
+            Console.WriteLine("Válassz egy lehetőséget a menüből:");
+            Console.WriteLine("1. Felhasználó statisztikák");
+            Console.WriteLine("2. Globális statisztikák");
+            string? input = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(input) && statisticCommands.ContainsKey(input))
+            {
+                statisticCommands[input].Invoke();
+                break;
+            }
+            else
+            {
+                Console.WriteLine("?? Érvénytelen parancs, próbáld újra.");
+            }
+        }
+        Console.Clear();
     }
 
     private static void StartGame()
@@ -65,7 +88,7 @@ public class Program
         Console.WriteLine("Kijelentkezés...");
         Thread.Sleep(1000);
         // Bezárunk minden megnyitott fájlt és újraindítjuk a GameManager-t
-        
+
     }
 
     private static void ExitApplication()
