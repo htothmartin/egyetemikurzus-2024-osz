@@ -9,14 +9,16 @@ public class UserRepository
 {
     private const string DatabaseFile = "database.json";
     private List<User> _users;
-    private static UserRepository _instance;
 
-    private UserRepository()
+    public UserRepository()
     {
         LoadUsers();
     }
 
-    public static UserRepository Instance => _instance ??= new UserRepository();
+    public List<User> Users
+    {
+        get { return _users; }
+    }
 
     public User GetOrCreateUser(string username)
     {
@@ -54,12 +56,13 @@ public class UserRepository
         }
     }
 
-    private void SaveUsers()
+    public void SaveUsers()
     {
         try
         {
             var path = Path.Combine(AppContext.BaseDirectory, DatabaseFile);
             using FileStream stream = File.Create(path);
+            Console.WriteLine(path);
 
             var options = new JsonSerializerOptions
             {

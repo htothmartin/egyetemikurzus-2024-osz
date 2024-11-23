@@ -21,10 +21,11 @@ namespace F1H43C_EEJYN9.Core
             }
         }
 
-        public void Start(string playerName)
+        public string Start(string playerName)
         {
             HumanPlayer = new HumanPlayer(playerName);
             AIPlayer = new AiPlayer("AI");
+            Console.Clear();
             HumanPlayer.PlaceShips();
             AIPlayer.PlaceShips();
             
@@ -46,15 +47,9 @@ namespace F1H43C_EEJYN9.Core
             }
             Console.Clear();
             Console.WriteLine($"Nyertes: {GetWinner()}");
+            return GetWinner();
         }
-
-        public void CloseAllFiles()
-        {
-            Console.WriteLine("Minden fájl bezárva.");
-            ClearConsole();
-            // Itt kerülnek bezárásra a megnyitott fájlok, ha vannak
-        }
-
+        
         private string GetWinner()
         {
             if (HumanPlayer.IsALlShipSunk() && AIPlayer.IsALlShipSunk())
@@ -68,11 +63,6 @@ namespace F1H43C_EEJYN9.Core
         private bool IsGameEnded()
         {
             return !HumanPlayer.IsALlShipSunk() && !AIPlayer.IsALlShipSunk();
-        }
-
-        public void ClearConsole()
-        {
-            Console.Clear();
         }
     }
 }

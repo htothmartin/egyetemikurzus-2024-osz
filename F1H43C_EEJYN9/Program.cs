@@ -1,5 +1,5 @@
-﻿using F1H43C_EEJYN9;
-using F1H43C_EEJYN9.Core;
+﻿using F1H43C_EEJYN9.Core;
+using F1H43C_EEJYN9.Entities;
 
 public class Program
 {
@@ -10,8 +10,9 @@ public class Program
         Console.WriteLine("Válassz egy lehetőséget a menüből:");
         Console.WriteLine("1. Játék indítása");
         Console.WriteLine("2. Preferenciák módosítása");
-        Console.WriteLine("3. Kijelentkezés");
-        Console.WriteLine("4. Kilépés");
+        Console.WriteLine("3. Statisztikak");
+        Console.WriteLine("4. Kijelentkezés");
+        Console.WriteLine("5. Kilépés");
 
         while (true)
         {
@@ -35,13 +36,44 @@ public class Program
     {
         {"1", StartGame},
         {"2", ModifyPreferences},
-        {"3", Logout},
-        {"4", ExitApplication}
+        {"3", Statistics},
+        {"4", Logout},
+        {"5", ExitApplication}
     };
+    
+    private static readonly Dictionary<string, Action> statisticCommands = new()
+    {
+        {"1", UserManager.Instance.UserStatistics},
+        {"2", UserManager.Instance.GlobalStatistics},
+    };
+
+    private static void Statistics()
+    {
+        Console.Clear();
+        while (true)
+        {
+            Console.WriteLine("Válassz egy lehetőséget a menüből:");
+            Console.WriteLine("1. Felhasználó statisztikák");
+            Console.WriteLine("2. Globális statisztikák");
+            string? input = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(input) && statisticCommands.ContainsKey(input))
+            {
+                statisticCommands[input].Invoke();
+                break;
+            }
+            else
+            {
+                Console.WriteLine("?? Érvénytelen parancs, próbáld újra.");
+            }
+        }
+        Console.Clear();
+    }
 
     private static void StartGame()
     {
-        GameManager.Instance.Start(UserManager.Instance.CurrentUser.Name);
+        string winner = GameManager.Instance.Start(UserManager.Instance.CurrentUser.Name);
+        UserManager.Instance.CurrentUser.GamesPlayed.Add(new GameData(DateTime.Now, winner));
     }
 
     private static void ModifyPreferences()
@@ -52,15 +84,16 @@ public class Program
 
     private static void Logout()
     {
+        UserManager.Instance.CloseAllFiles();
         Console.WriteLine("Kijelentkezés...");
         Thread.Sleep(1000);
         // Bezárunk minden megnyitott fájlt és újraindítjuk a GameManager-t
-        GameManager.Instance.CloseAllFiles();
+
     }
 
     private static void ExitApplication()
     {
-        GameManager.Instance.CloseAllFiles();
+        UserManager.Instance.CloseAllFiles();
         Console.WriteLine("Kilépés...");
         Thread.Sleep(1000);
         Environment.Exit(0);

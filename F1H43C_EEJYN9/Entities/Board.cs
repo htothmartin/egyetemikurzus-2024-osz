@@ -148,11 +148,6 @@ public class Board
         return true;
     }
 
-    public bool IsCellHit(Coordinate pos)
-    {
-        return Grid[pos.X, pos.Y].IsHit;
-    }
-
     public bool PlaceShip(Ship ship)
     {
         if (!CheckShipPositionIsValid(ship)) return false;
@@ -201,9 +196,13 @@ public class Board
         return false;
     }
 
-    public void GenerateRandomAiPos()
+    public void GenerateRandomAiPos(bool rotate = false)
     {
         Random random = new Random();
+        if (rotate && random.Next(0, 2) == 0)
+        {
+            Rotate90Degrees();
+        }
         SelectedCell = new Coordinate(random.Next(0, GridSize), random.Next(0, GridSize));
     }
     
