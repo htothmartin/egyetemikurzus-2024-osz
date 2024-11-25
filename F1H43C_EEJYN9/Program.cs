@@ -79,7 +79,7 @@ public class Program
     private static void ModifyPreferences()
     {
         Console.WriteLine("Preferenciák módosítása...");
-        // Ide jön majd a preferenciák módosításának logikája
+        PreferencesManager.Instance.ShowPreferencesMenu();
     }
 
     private static void Logout()
@@ -87,8 +87,6 @@ public class Program
         UserManager.Instance.CloseAllFiles();
         Console.WriteLine("Kijelentkezés...");
         Thread.Sleep(1000);
-        // Bezárunk minden megnyitott fájlt és újraindítjuk a GameManager-t
-
     }
 
     private static void ExitApplication()
@@ -109,6 +107,7 @@ public class Program
             {
                 // Console.WriteLine("GameManager elindítva...");
                 Console.WriteLine("Sikeres bejelentkezés! ");
+                PreferencesManager.Instance.InitializePreferences(UserManager.Instance.CurrentUser.Name);
                 MainMenu();
                 // Visszatérünk a főmenübe
             }
