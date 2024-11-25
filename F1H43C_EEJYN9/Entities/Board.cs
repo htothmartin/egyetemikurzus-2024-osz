@@ -1,3 +1,4 @@
+using F1H43C_EEJYN9.Core;
 namespace F1H43C_EEJYN9.Entities;
 
 public class Board
@@ -6,10 +7,13 @@ public class Board
     public readonly Cell[,] Grid ;
     private Coordinate _direction;
     public Coordinate SelectedCell { get; private set; }
+    private readonly GamePreferences _preferences;
     
     public Board()
     {
         Grid = new Cell[GridSize, GridSize];
+        _preferences = PreferencesManager.Instance.GetPreferenceManager()
+            .LoadPreferences(UserManager.Instance.CurrentUser.Name);
         InitializeGrid();
         _direction = new Coordinate(1, 0);
         SelectedCell = new Coordinate(0, 0);
@@ -21,18 +25,18 @@ public class Board
         {
             for (int j = 0; j < GridSize; j++)
             {
-                Grid[i, j] = new Cell('~');
+                Grid[i, j] = new Cell(_preferences.WaterCharacter);
             }
         }
     }
 
 
-    public void RenderGrid(Ship ship, bool shipPreview = false, bool cursor = true)
+  public void RenderGrid(Ship ship, bool shipPreview = false, bool cursor = true)
     {
         Console.Clear();
         Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        List<Coordinate> possibleCells =  shipPreview ? GetPossibleCells(ship) : new List<Coordinate>();
+        List<Coordinate> possibleCells = shipPreview ? GetPossibleCells(ship) : new List<Coordinate>();
         
         Console.WriteLine("╔" + new string('═', GridSize * 2) + "╗");
 
@@ -43,32 +47,38 @@ public class Board
             {
                 if (Grid[i, j].HasShip && !Grid[i,j].IsHit)
                 {
-                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.ForegroundColor = _preferences.ShipColor;
                 }
                 else if (shipPreview && possibleCells.Contains(new Coordinate(i, j)))
                 {
                     Console.ForegroundColor = CheckShipPositionIsValid(ship) ? ConsoleColor.Green : ConsoleColor.Red;
-                } else if(SelectedCell.Equals(new Coordinate(i, j)) && cursor)
+                }
+                else if(SelectedCell.Equals(new Coordinate(i, j)) && cursor)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
-                } else if (Grid[i, j].HasShip && Grid[i, j].IsHit)
+                }
+                else if (Grid[i, j].HasShip && Grid[i, j].IsHit)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.ForegroundColor = _preferences.HitShipColor;
                 }
                 else
                 {
-                    Console.ResetColor();
+                    Console.ForegroundColor = _preferences.WaterColor;
                 }
                 
                 char symbol = Grid[i, j].Symbol;
-                if (Grid[i, j].HasShip)
+                if (Grid[i, j].HasShip && !Grid[i, j].IsHit)
                 {
-                    symbol = '■';
-                } else if (Grid[i, j].IsHit)
-                {
-                    symbol = 'O';
+                    symbol = _preferences.ShipCharacter;
                 }
-                
+                else if (Grid[i, j].HasShip && Grid[i, j].IsHit)
+                {
+                    symbol = _preferences.HitShipCharacter;
+                }
+                else if (Grid[i, j].IsHit)
+                {
+                    symbol = _preferences.MissedShotCharacter;
+                }
 
                 Console.Write(symbol + " ");
                 Console.ResetColor();
@@ -96,20 +106,25 @@ public class Board
                 }
                 else if (Grid[i, j].HasShip && Grid[i,j].IsHit)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.ForegroundColor = _preferences.SunkShipColor;
+                }
+                else if (Grid[i, j].IsHit && !Grid[i, j].HasShip)
+                {
+                    Console.ForegroundColor = _preferences.MissedShotColor;
                 }
                 else
                 {
-                    Console.ResetColor();
+                    Console.ForegroundColor = _preferences.WaterColor;
                 }
                 
                 char symbol = Grid[i, j].Symbol;
                 if (Grid[i, j].HasShip && Grid[i, j].IsHit)
                 {
-                    symbol = 'X';
-                } else if (Grid[i, j].IsHit)
+                    symbol = _preferences.SunkShipCharacter;
+                }
+                else if (Grid[i, j].IsHit)
                 {
-                    symbol = 'O';
+                    symbol = _preferences.MissedShotCharacter;
                 }
 
                 Console.Write(symbol + " ");
@@ -119,8 +134,6 @@ public class Board
         }
 
         Console.WriteLine("╚" + new string('═', GridSize * 2) + "╝");
-        
-        
     }
     
     public bool CheckShipPositionIsValid(Ship ship)
