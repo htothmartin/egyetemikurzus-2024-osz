@@ -2,11 +2,11 @@
 
 public class GamePreferences
 {
-    public char ShipCharacter { get; set; } = 'S';
+    public char ShipCharacter { get; set; } = '■';
     public char HitShipCharacter { get; set; } = 'H';
     public char SunkShipCharacter { get; set; } = 'X';
     public char WaterCharacter { get; set; } = '~';
-    public char MissedShotCharacter { get; set; } = 'O';
+    public char MissedShotCharacter { get; set; } = '-';
     
     public ConsoleColor ShipColor { get; set; } = ConsoleColor.White;
     public ConsoleColor HitShipColor { get; set; } = ConsoleColor.Red;

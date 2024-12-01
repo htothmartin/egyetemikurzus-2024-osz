@@ -21,20 +21,40 @@ public class PreferenceManager : IPreferenceManager
         _defaultPreferences = new GamePreferences();
     }
 
-    public void SavePreferences(string username, GamePreferences preferences)
+    public bool SavePreferences(string username, GamePreferences preferences)
     {
         if (string.IsNullOrWhiteSpace(username))
             throw new ArgumentException("Username cannot be empty", nameof(username));
 
         ValidateAndApplyDefaults(preferences);
 
-        string filePath = GetPreferenceFilePath(username);
-        string jsonString = JsonSerializer.Serialize(preferences, new JsonSerializerOptions 
-        { 
-            WriteIndented = true 
-        });
-        
-        File.WriteAllText(filePath, jsonString);
+        try
+        {
+            string filePath = GetPreferenceFilePath(username);
+            string jsonString = JsonSerializer.Serialize(preferences, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            _ = Directory.CreateDirectory(Path.GetDirectoryName(filePath));
+            File.WriteAllText(filePath, jsonString);
+            return true;
+        }
+        catch (IOException ioe)
+        {
+            Console.WriteLine($"IO Error saving preferences: {ioe.Message}");
+            return false;
+        }
+        catch (JsonException je)
+        {
+            Console.WriteLine($"Serialization Error saving preferences: {je.Message}");
+            return false;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Unexpected Error saving preferences: {e.Message}");
+            return false;
+        }
     }
 
     public GamePreferences LoadPreferences(string username)
@@ -42,16 +62,32 @@ public class PreferenceManager : IPreferenceManager
         if (string.IsNullOrWhiteSpace(username))
             throw new ArgumentException("Username cannot be empty", nameof(username));
 
-        string filePath = GetPreferenceFilePath(username);
-        
-        if (!File.Exists(filePath))
-            return new GamePreferences();
+        try
+        {
+            string filePath = GetPreferenceFilePath(username);
+            if (!File.Exists(filePath))
+                return new GamePreferences();
 
-        string jsonString = File.ReadAllText(filePath);
-        var preferences = JsonSerializer.Deserialize<GamePreferences>(jsonString);
-        
-        ValidateAndApplyDefaults(preferences);
-        return preferences;
+            string jsonString = File.ReadAllText(filePath);
+            var preferences = JsonSerializer.Deserialize<GamePreferences>(jsonString);
+            ValidateAndApplyDefaults(preferences);
+            return preferences;
+        }
+        catch (IOException ioe)
+        {
+            Console.WriteLine($"Error loading preferences: {ioe.Message}");
+            return new GamePreferences();
+        }
+        catch (JsonException je)
+        {
+            Console.WriteLine($"Error parsing preferences: {je.Message}");
+            return new GamePreferences();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Unexpected Error saving preferences: {e.Message}");
+       return new GamePreferences();
+        }
     }
 
     public List<ConsoleColor> GetAvailableColors()
@@ -59,37 +95,58 @@ public class PreferenceManager : IPreferenceManager
         return _availableColors.ToList();
     }
 
-    private void ValidateAndApplyDefaults(GamePreferences preferences)
+    public void ValidateAndApplyDefaults(GamePreferences preferences)
     {
+
         if (char.IsWhiteSpace(preferences.ShipCharacter))
+        {
             preferences.ShipCharacter = _defaultPreferences.ShipCharacter;
-            
+        }
+
         if (char.IsWhiteSpace(preferences.HitShipCharacter))
+        {
             preferences.HitShipCharacter = _defaultPreferences.HitShipCharacter;
-            
+        }
+
         if (char.IsWhiteSpace(preferences.SunkShipCharacter))
+        {
             preferences.SunkShipCharacter = _defaultPreferences.SunkShipCharacter;
-            
+        }
+
         if (char.IsWhiteSpace(preferences.WaterCharacter))
+        {
             preferences.WaterCharacter = _defaultPreferences.WaterCharacter;
-            
+        }
+
         if (char.IsWhiteSpace(preferences.MissedShotCharacter))
+        {
             preferences.MissedShotCharacter = _defaultPreferences.MissedShotCharacter;
-        
+        }
+
         if (!_availableColors.Contains(preferences.ShipColor))
+        {
             preferences.ShipColor = _defaultPreferences.ShipColor;
-            
+        }
+
         if (!_availableColors.Contains(preferences.HitShipColor))
+        {
             preferences.HitShipColor = _defaultPreferences.HitShipColor;
-            
+        }
+
         if (!_availableColors.Contains(preferences.SunkShipColor))
+        {
             preferences.SunkShipColor = _defaultPreferences.SunkShipColor;
-            
+        }
+
         if (!_availableColors.Contains(preferences.WaterColor))
+        {
             preferences.WaterColor = _defaultPreferences.WaterColor;
-            
+        }
+
         if (!_availableColors.Contains(preferences.MissedShotColor))
+        {
             preferences.MissedShotColor = _defaultPreferences.MissedShotColor;
+        }
     }
 
     private string GetPreferenceFilePath(string username)

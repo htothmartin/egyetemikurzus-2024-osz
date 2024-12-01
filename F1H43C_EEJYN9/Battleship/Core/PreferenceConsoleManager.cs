@@ -1,22 +1,22 @@
 ﻿using F1H43C_EEJYN9.Entities.Interfaces;
 namespace F1H43C_EEJYN9.Core;
 
-public class PreferencesManager
+public class PreferenceConsoleManager
 {
-    private static PreferencesManager? instance;
+    private static PreferenceConsoleManager? instance;
     private readonly IPreferenceManager _preferenceManager;
     private readonly Dictionary<string, Action> _preferenceCommands;
 
-    public static PreferencesManager Instance
+    public static PreferenceConsoleManager Instance
     {
         get
         {
-            instance ??= new PreferencesManager();
+            instance ??= new PreferenceConsoleManager();
             return instance;
         }
     }
 
-    private PreferencesManager()
+    private PreferenceConsoleManager()
     {
         _preferenceManager = new PreferenceManager();
         _preferenceCommands = new Dictionary<string, Action>
@@ -53,6 +53,7 @@ public class PreferencesManager
 
         Console.Write("\nVálassz egy opciót (1-6): ");
         string? input = Console.ReadLine();
+        bool whitespace = false;
 
         if (!string.IsNullOrEmpty(input) && int.TryParse(input, out int choice) && choice >= 1 && choice <= 5)
         {
@@ -61,7 +62,12 @@ public class PreferencesManager
             if (!string.IsNullOrEmpty(charInput))
             {
                 char newChar = charInput[0];
-                switch (choice)
+
+                if (char.IsWhiteSpace(newChar))
+                {
+                    whitespace = true;
+                }
+                    switch (choice)
                 {
                     case 1: preferences.ShipCharacter = newChar; break;
                     case 2: preferences.HitShipCharacter = newChar; break;
@@ -76,7 +82,14 @@ public class PreferencesManager
         if (modified)
         {
             _preferenceManager.SavePreferences(UserManager.Instance.CurrentUser.Name, preferences);
-            Console.WriteLine("Beállítások mentve!");
+            if (whitespace) {
+                Console.WriteLine("A kiválasztott karakter helyett az alapértelmezett karakter lett beállítva, mert a kiválasztott karakter nem megfelelő");
+            }
+            else
+            {
+                Console.WriteLine("Beállítások mentve!");
+            }
+            
         }
         Console.WriteLine("\nNyomj meg egy gombot a folytatáshoz...");
         Console.ReadKey();

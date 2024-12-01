@@ -13,7 +13,7 @@ public class Board
     public Board()
     {
         Grid = new Cell[GridSize, GridSize];
-        _preferences = PreferencesManager.Instance.GetPreferenceManager()
+        _preferences = PreferenceConsoleManager.Instance.GetPreferenceManager()
             .LoadPreferences(UserManager.Instance.CurrentUser.Name);
         InitializeGrid();
         _direction = new Coordinate(1, 0);
@@ -81,7 +81,7 @@ public class Board
                     symbol = _preferences.MissedShotCharacter;
                 }
 
-                Console.Write(symbol + " ");
+                Console.Write($"{symbol} ");
                 Console.ResetColor();
             }
             Console.WriteLine("║");
@@ -128,7 +128,7 @@ public class Board
                     symbol = _preferences.MissedShotCharacter;
                 }
 
-                Console.Write(symbol + " ");
+                Console.Write($"{symbol} ");
                 Console.ResetColor();
             }
             Console.WriteLine("║");
