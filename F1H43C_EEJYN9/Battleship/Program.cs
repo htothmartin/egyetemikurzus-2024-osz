@@ -79,7 +79,7 @@ public class Program
     private static void ModifyPreferences()
     {
         Console.WriteLine("Preferenciák módosítása...");
-        PreferencesManager.Instance.ShowPreferencesMenu();
+        PreferenceConsoleManager.Instance.ShowPreferencesMenu();
     }
 
     private static void Logout()
@@ -105,11 +105,9 @@ public class Program
 
             if (UserManager.Instance.UserLogin())
             {
-                // Console.WriteLine("GameManager elindítva...");
                 Console.WriteLine("Sikeres bejelentkezés! ");
-                PreferencesManager.Instance.InitializePreferences(UserManager.Instance.CurrentUser.Name);
+                PreferenceConsoleManager.Instance.InitializePreferences(UserManager.Instance.CurrentUser.Name);
                 MainMenu();
-                // Visszatérünk a főmenübe
             }
             else
             {
