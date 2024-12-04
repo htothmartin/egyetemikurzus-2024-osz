@@ -8,7 +8,7 @@ namespace F1H43C_EEJYN9.Exceptions
 {
     public class InvalidActionException : Exception
     {
-        public InvalidActionException(): base("This action is not valid."){}
+        public InvalidActionException(): base("Az a lépés nem szabályos."){}
 
         public InvalidActionException(string message) : base(message) { }
 

@@ -203,7 +203,7 @@ public class Board
     {
         if(Grid[target.X, target.Y].IsHit)
         {
-            throw new InvalidActionException("This field is alredy hit.");
+            throw new InvalidActionException("Ezt a mezőt már megtorpedóztad!");
         }
        
         Grid[target.X, target.Y].IsHit = true;

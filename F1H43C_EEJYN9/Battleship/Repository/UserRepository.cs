@@ -8,26 +8,21 @@ namespace F1H43C_EEJYN9.Repository;
 public class UserRepository
 {
     private const string DatabaseFile = "database.json";
-    private List<User> _users;
+    public List<User> Users { get; private set; }
 
     public UserRepository()
     {
         LoadUsers();
     }
-
-    public List<User> Users
-    {
-        get { return _users; }
-    }
-
+    
     public User GetOrCreateUser(string username)
     {
-        var user = _users.Find(u => u.Name.Equals(username, StringComparison.OrdinalIgnoreCase));
+        var user = Users.Find(u => u.Name.Equals(username, StringComparison.OrdinalIgnoreCase));
 
         if (user == null)
         {
             user = new User(username);
-            _users.Add(user);
+            Users.Add(user);
             SaveUsers();
         }
 
@@ -42,17 +37,17 @@ public class UserRepository
             if (File.Exists(path))
             {
                 using FileStream stream = File.OpenRead(path);
-                _users = JsonSerializer.Deserialize<List<User>>(stream) ?? new List<User>();
+                Users = JsonSerializer.Deserialize<List<User>>(stream) ?? new List<User>();
             }
             else
             {
-                _users = new List<User>();
+                Users = new List<User>();
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading users: {ex.Message}");
-            _users = new List<User>();
+            Users = new List<User>();
         }
     }
 
@@ -69,7 +64,7 @@ public class UserRepository
                 WriteIndented = true,
                 NumberHandling = JsonNumberHandling.WriteAsString
             };
-            JsonSerializer.Serialize(stream, _users, options);
+            JsonSerializer.Serialize(stream, Users, options);
         }
         catch (Exception ex)
         {

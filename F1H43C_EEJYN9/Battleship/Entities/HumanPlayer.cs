@@ -41,7 +41,7 @@ public class HumanPlayer : Player
             }
             Console.Clear();
         }
-        Board.RenderGrid(null, false);
+        Board.RenderGrid(null);
         Console.WriteLine("Sikeresen elhelyeztél minden hajót!");
         Console.WriteLine("Nyomj meg egy gombot a folytatáshoz.");
         Console.ReadKey(true);
